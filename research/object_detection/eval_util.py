@@ -30,7 +30,6 @@ from object_detection.utils import visualization_utils as vis_utils
 
 slim = tf.contrib.slim
 
-
 def write_metrics(metrics, global_step, summary_dir):
   """Write metrics to a summary directory.
 

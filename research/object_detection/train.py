@@ -45,6 +45,7 @@ import functools
 import json
 import os
 import tensorflow as tf
+import logging
 
 from object_detection import trainer
 from object_detection.builders import input_reader_builder
@@ -52,6 +53,7 @@ from object_detection.builders import model_builder
 from object_detection.utils import config_util
 
 tf.logging.set_verbosity(tf.logging.INFO)
+logging.basicConfig(level=logging.INFO)
 
 flags = tf.app.flags
 flags.DEFINE_string('master', '', 'Name of the TensorFlow master to use.')
