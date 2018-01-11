@@ -156,7 +156,7 @@ class SSDMetaArch(model.DetectionModel):
       localization_loss_weight: float
       normalize_loss_by_num_matches: boolean
       hard_example_miner: a losses.HardExampleMiner object (can be None)
-      add_summaries: boolean (default: False) controlling whether summary ops
+      add_summaries: boolean (default: True) controlling whether summary ops
         should be added to tensorflow graph.
     """
     super(SSDMetaArch, self).__init__(num_classes=box_predictor.num_classes)
