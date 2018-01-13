@@ -21,6 +21,8 @@ The functions do not return a value, instead they modify the image itself.
 """
 import collections
 import functools
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 import PIL.Image as Image
@@ -518,7 +520,7 @@ def add_cdf_image_summary(values, name):
     fig.canvas.draw()
     width, height = fig.get_size_inches() * fig.get_dpi()
     image = np.fromstring(fig.canvas.tostring_rgb(), dtype='uint8').reshape(
-        1, height, width, 3)
+        1, int(height), int(width), 3)
     return image
   cdf_plot = tf.py_func(cdf_plot, [values], tf.uint8)
   tf.summary.image(name, cdf_plot)
