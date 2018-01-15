@@ -225,7 +225,7 @@ class ObjectDetectionEvaluator(DetectionEvaluator):
       2. per_category_ap: category specific results with keys of the form
         'PerformanceByCategory/mAP@<matching_iou_threshold>IOU/category'.
     """
-    (per_class_ap, mean_ap, _, _, per_class_corloc, mean_corloc) = (
+    (per_class_ap, mean_ap, per_class_precision, per_class_recall, per_class_corloc, mean_corloc) = (
         self._evaluation.evaluate())
     pascal_metrics = {
         self._metric_prefix +
@@ -243,6 +243,18 @@ class ObjectDetectionEvaluator(DetectionEvaluator):
                 self._matching_iou_threshold,
                 category_index[idx + self._label_id_offset]['name']))
         pascal_metrics[display_name] = per_class_ap[idx]
+
+        display_name = (
+            self._metric_prefix + 'PerformanceByCategory/Precision@{}IOU/{}'.format(
+                self._matching_iou_threshold,
+                category_index[idx + self._label_id_offset]['name']))
+        pascal_metrics[display_name] = per_class_precision[idx]
+
+        display_name = (
+            self._metric_prefix + 'PerformanceByCategory/Recall@{}IOU/{}'.format(
+                self._matching_iou_threshold,
+                category_index[idx + self._label_id_offset]['name']))
+        pascal_metrics[display_name] = per_class_recall[idx]
 
         # Optionally add CorLoc metrics.classes
         if self._evaluate_corlocs:
