@@ -91,7 +91,7 @@ def _extract_prediction_tensors(model,
       scale_to_absolute=True)
 
 
-def get_evaluators(eval_config, categories):
+def get_evaluators(eval_config, categories, matching_iou_threshold):
   """Returns the evaluator class according to eval_config, valid for categories.
 
   Args:
@@ -108,7 +108,7 @@ def get_evaluators(eval_config, categories):
     raise ValueError('Metric not found: {}'.format(eval_metric_fn_key))
   return [
       EVAL_METRICS_CLASS_DICT[eval_metric_fn_key](
-          categories=categories)
+          categories=categories, matching_iou_threshold=matching_iou_threshold)
   ]
 
 

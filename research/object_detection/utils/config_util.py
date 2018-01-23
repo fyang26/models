@@ -48,6 +48,7 @@ def get_configs_from_pipeline_file(pipeline_config_path):
   configs["train_input_config"] = pipeline_config.train_input_reader
   configs["eval_config"] = pipeline_config.eval_config
   configs["eval_input_config"] = pipeline_config.eval_input_reader
+  configs["offline_eval_input_config"] = pipeline_config.offline_eval_input_reader
 
   return configs
 
@@ -71,6 +72,7 @@ def create_pipeline_proto_from_configs(configs):
   pipeline_config.train_input_reader.CopyFrom(configs["train_input_config"])
   pipeline_config.eval_config.CopyFrom(configs["eval_config"])
   pipeline_config.eval_input_reader.CopyFrom(configs["eval_input_config"])
+  pipeline_config.offline_eval_input_reader.CopyFrom(configs["offline_eval_input_config"])
   return pipeline_config
 
 
@@ -78,7 +80,8 @@ def get_configs_from_multiple_files(model_config_path="",
                                     train_config_path="",
                                     train_input_config_path="",
                                     eval_config_path="",
-                                    eval_input_config_path=""):
+                                    eval_input_config_path="",
+                                    offline_eval_input_config_path=""):
   """Reads training configuration from multiple config files.
 
   Args:
@@ -124,6 +127,12 @@ def get_configs_from_multiple_files(model_config_path="",
       text_format.Merge(f.read(), eval_input_config)
       configs["eval_input_config"] = eval_input_config
 
+  if offline_eval_input_config_path:
+    offline_eval_input_config = input_reader_pb2.InputReader()
+    with tf.gfile.GFile(offline_eval_input_config_path, "r") as f:
+      text_format.Merge(f.read(), offline_eval_input_config)
+      configs["offline_eval_input_config"] = offline_eval_input_config
+  
   return configs
 
 
@@ -224,6 +233,9 @@ def merge_external_params_with_configs(configs, hparams=None, **kwargs):
     if key == "eval_input_path":
       _update_input_path(configs["eval_input_config"], value)
       tf.logging.info("Overwriting eval input path: %s", value)
+    if key == "offline_eval_input_path":
+      _update_input_path(configs["offline_eval_input_config"], value)
+      tf.logging.info("Overwriting offline eval input path: %s", value)
     if key == "label_map_path":
       if value:
         _update_label_map_path(configs, value)
