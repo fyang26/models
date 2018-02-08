@@ -102,9 +102,9 @@ def model_fn(features, labels, mode, params):
       optimizer = tf.contrib.estimator.TowerOptimizer(optimizer)
 
     logits = model(image, training=True)
-    loss = tf.losses.softmax_cross_entropy(onehot_labels=labels, logits=logits)
+    loss = tf.losses.sparse_softmax_cross_entropy(labels=labels, logits=logits)
     accuracy = tf.metrics.accuracy(
-        labels=tf.argmax(labels, axis=1), predictions=tf.argmax(logits, axis=1))
+        labels=labels, predictions=tf.argmax(logits, axis=1))
     # Name the accuracy tensor 'train_accuracy' to demonstrate the
     # LoggingTensorHook.
     tf.identity(accuracy[1], name='train_accuracy')
@@ -115,14 +115,14 @@ def model_fn(features, labels, mode, params):
         train_op=optimizer.minimize(loss, tf.train.get_or_create_global_step()))
   if mode == tf.estimator.ModeKeys.EVAL:
     logits = model(image, training=False)
-    loss = tf.losses.softmax_cross_entropy(onehot_labels=labels, logits=logits)
+    loss = tf.losses.sparse_softmax_cross_entropy(labels=labels, logits=logits)
     return tf.estimator.EstimatorSpec(
         mode=tf.estimator.ModeKeys.EVAL,
         loss=loss,
         eval_metric_ops={
             'accuracy':
                 tf.metrics.accuracy(
-                    labels=tf.argmax(labels, axis=1),
+                    labels=labels,
                     predictions=tf.argmax(logits, axis=1)),
         })
 
@@ -142,7 +142,7 @@ def validate_batch_size_for_multi_gpu(batch_size):
   if not num_gpus:
     raise ValueError('Multi-GPU mode was specified, but no GPUs '
       'were found. To use CPU, run without --multi_gpu.')
-    
+
   remainder = batch_size % num_gpus
   if remainder:
     err = ('When running with multiple GPUs, batch size '
@@ -184,8 +184,7 @@ def main(unused_argv):
     ds = dataset.train(FLAGS.data_dir)
     ds = ds.cache().shuffle(buffer_size=50000).batch(FLAGS.batch_size).repeat(
         FLAGS.train_epochs)
-    (images, labels) = ds.make_one_shot_iterator().get_next()
-    return (images, labels)
+    return ds
 
   # Set up training hook that logs the training accuracy every 100 steps.
   tensors_to_log = {'train_accuracy': 'train_accuracy'}
