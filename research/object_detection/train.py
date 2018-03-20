@@ -48,9 +48,10 @@ import tensorflow as tf
 import logging
 
 from object_detection import trainer
-from object_detection.builders import input_reader_builder
+from object_detection.builders import dataset_builder
 from object_detection.builders import model_builder
 from object_detection.utils import config_util
+from object_detection.utils import dataset_util
 
 tf.logging.set_verbosity(tf.logging.INFO)
 logging.basicConfig(level=logging.INFO)
@@ -116,8 +117,11 @@ def main(_):
       model_config=model_config,
       is_training=True)
 
-  create_input_dict_fn = functools.partial(
-      input_reader_builder.build, input_config)
+  def get_next(config):
+    return dataset_util.make_initializable_iterator(
+        dataset_builder.build(config)).get_next()
+
+  create_input_dict_fn = functools.partial(get_next, input_config)
 
   env = json.loads(os.environ.get('TF_CONFIG', '{}'))
   cluster_data = env.get('cluster', None)
